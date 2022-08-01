@@ -1,0 +1,11 @@
+{
+    "name": "bdd88/jsonwebtoken",
+    "description": "A JSON Web Token authentication library.",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Bdd88\\Jsonwebtoken\\": "src/"
+        }
+    },
+    "require": {}
+}
