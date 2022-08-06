@@ -1,0 +1,11 @@
+{
+    "name": "bdd88/mysql",
+    "description": "A database model for MySql that handles standard CRUD operations as well as prepared statements.",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Bdd88\\Mysql\\": ""
+        }
+    },
+    "require": {}
+}
