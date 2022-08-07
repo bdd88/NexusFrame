@@ -9,15 +9,15 @@ use Exception;
 class MySql
 {
     private mysqli $connection;
-    private string $host;
-    private string $user;
+    private string $hostname;
+    private string $username;
     private string $password;
     private string $database;
 
-    public function __construct(string $host, string $user, string $password, string $database)
+    public function __construct(string $hostname, string $username, string $password, string $database)
     {
-        $this->$host = $host;
-        $this->user = $user;
+        $this->hostname = $hostname;
+        $this->username = $username;
         $this->password = $password;
         $this->database = $database;
         $this->connect();
@@ -31,7 +31,7 @@ class MySql
     /** Create a new database connection using information from the config file. */
     private function connect(): void
     {
-        $this->connection = new mysqli($this->host, $this->user, $this->password, $this->database);
+        $this->connection = new mysqli($this->hostname, $this->username, $this->password, $this->database);
         if ($this->connection->connect_error) {
             throw new Exception("Connection failed: " . $this->connection->connect_error);
         }
