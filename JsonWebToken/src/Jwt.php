@@ -67,7 +67,11 @@ class Jwt
 
     /**
      * Generate a JSON Web Token.
-     * Currently only supports SHA256 hashing algo.
+     *
+     * @param array $header Should include 'alg' and 'typ'.
+     * @param array $payload Claims you want to use.
+     * @param string $key Shared secret for HMAC or private key for RSA.
+     * @return void
      */
     public function generate(array $header, array $payload, string $key): void
     {
