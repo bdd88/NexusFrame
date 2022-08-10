@@ -13,6 +13,7 @@ class Jwt
     private Base64Url $base64Url;
     private Rsa $rsa;
     private Hmac $hmac;
+    private SigningAlgoInterface $signingAlgo;
 
     private const REGISTERED_CLAIMS = array(
         'iss' => 'Issuer',
@@ -33,8 +34,8 @@ class Jwt
     );
 
     private array $header;
-    private array $payload;
     private string $encodedHeader;
+    private array $payload;
     private string $encodedPayload;
     private string $dataToSign;
     private string $signature;
@@ -42,7 +43,8 @@ class Jwt
     private string $encodedToken;
     private string $signingAlgoString;
     private string $hashingAlgoString;
-    private SigningAlgoInterface $signingAlgo;
+    private string|NULL $verificationKey;
+    private string|NULL $signingKey;
 
     public function __construct(Base64Url $base64Url, Rsa $rsa, Hmac $hmac)
     {
@@ -66,22 +68,31 @@ class Jwt
     }
 
     /**
+     * Set the keys to be used for verification and signing of tokens.
+     *
+     * @param string|null $verificationKey PEM format Public key for RSA. Shared secret for HMAC.
+     * @param string|null $signingKey PEM format Private key for RSA. Shared secret for HMAC.
+     */
+    public function setKeys(?string $verificationKey, ?string $signingKey): void
+    {
+        $this->verificationKey = $verificationKey;
+        $this->signingKey = $signingKey;
+    }
+
+    /**
      * Generate a JSON Web Token.
      *
      * @param array $header Should include 'alg' and 'typ'.
      * @param array $payload Claims you want to use.
-     * @param string $key Shared secret for HMAC or private key for RSA.
-     * @return void
      */
-    public function generate(array $header, array $payload, string $key): void
+    public function generate(array $header, array $payload): void
     {
-
         $this->header = $header;
         $this->payload = $payload;
         $this->encodedHeader = $this->base64Url->encode(json_encode($this->header));
         $this->encodedPayload = $this->base64Url->encode(json_encode($this->payload));
         $this->prepareForSigning();
-        $this->signature = $this->signingAlgo->sign($this->hashingAlgoString, $this->dataToSign, $key);
+        $this->signature = $this->signingAlgo->sign($this->hashingAlgoString, $this->dataToSign, $this->signingKey);
         $this->encodedSignature = $this->base64Url->encode($this->signature);
         $this->encodedToken = $this->encodedHeader . '.' . $this->encodedPayload . '.' . $this->encodedSignature;
     }
@@ -99,7 +110,7 @@ class Jwt
     /**
      * Determine if the header and payload claims are good, and verify the signature for tampering.
      */
-    public function validate(string $key): bool
+    public function validate(): bool
     {
         // Check the header for issues.
         if ($this->header['typ'] !== 'JWT') {
@@ -112,11 +123,11 @@ class Jwt
             throw new Exception('Unsupported Algorithm. Must use one of the following: ' . implode(', ', array_keys(SELF::SUPPORTED_ALGOS)));
         }
 
-        // Check the payload claims for issues.
+        // TODO: Check the payload claims for issues.
 
         // Verify the signature for tampering.
         $this->prepareForSigning();
-        $verifyStatus = $this->signingAlgo->verify($this->hashingAlgoString, $this->dataToSign, $key, $this->signature);
+        $verifyStatus = $this->signingAlgo->verify($this->hashingAlgoString, $this->dataToSign, $this->verificationKey, $this->signature);
         if ($verifyStatus === FALSE) {
             throw new Exception('Signature is bad.');
         }
