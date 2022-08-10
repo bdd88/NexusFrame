@@ -8,11 +8,11 @@ use Exception;
 /** A database model for MySql that handles standard CRUD operations as well as prepared statements. */
 class MySql
 {
-    private mysqli $connection;
-    private string $hostname;
-    private string $username;
-    private string $password;
-    private string $database;
+    protected mysqli $connection;
+    protected string $hostname;
+    protected string $username;
+    protected string $password;
+    protected string $database;
 
     public function __construct(string $hostname, string $username, string $password, string $database)
     {
@@ -29,7 +29,7 @@ class MySql
     }
 
     /** Create a new database connection using information from the config file. */
-    private function connect(): void
+    protected function connect(): void
     {
         $this->connection = new mysqli($this->hostname, $this->username, $this->password, $this->database);
         if ($this->connection->connect_error) {
@@ -38,7 +38,7 @@ class MySql
     }
 
     /** Run a query on the database. */
-    private function query(string $queryString): mysqli
+    protected function query(string $queryString): mysqli
     {
         $queryResponse = $this->connection->real_query($queryString);
         if ($queryResponse === FALSE) {
@@ -48,13 +48,13 @@ class MySql
     }
 
     /** Encapsulates a string in backticks. */
-    private function backticks(string $string): string
+    protected function backticks(string $string): string
     {
         return '`' . $string . '`';
     }
 
     /** Encapsulates a string in single quotes. */
-    private function singleQuotes(string $string): string
+    protected function singleQuotes(string $string): string
     {
         return '\'' . $string . '\'';
     }
@@ -77,7 +77,7 @@ class MySql
      * returns the following:
      * (`id` = '43') AND (`type` != 'apple' OR `type` != 'orange' OR `type` != 'pear') AND (`expiration` BETWEEN 'monday' AND 'friday') AND (`price` IS NOT NULL)
      */
-    private function whereString(array $array): string
+    protected function whereString(array $array): string
     {
         $output = 'WHERE ';
         foreach ($array as $key => $value) {
@@ -116,7 +116,7 @@ class MySql
     }
 
     /** Use an associative array to create the INSERT section of a query. */
-    private function insertString(array $array): string
+    protected function insertString(array $array): string
     {
         $columnString = '(';
         $valueString = '(';
@@ -135,7 +135,7 @@ class MySql
     }
 
     /** Use an associative array to create the SET section of a query. */
-    private function setString(array $array): string
+    protected function setString(array $array): string
     {
         $setString = 'SET ';
         foreach ($array as $key => $value) {
@@ -157,7 +157,7 @@ class MySql
      * selectString(['function' => 'sum', 'column' => 'quanitity', 'as' => 'totalQuantity']);
      * returns the following string: SELECT SUM(`quantity`) AS 'totalQuantity'
      */
-    private function selectString(?array $array): string
+    protected function selectString(?array $array): string
     {
         $setString = 'SELECT ';
         if ($array === NULL) {
@@ -195,7 +195,7 @@ class MySql
      * ]);
      * returns the following string: ORDER BY `date` DESC, `type` ASC
     */
-    private function orderbyString(array $array): string
+    protected function orderbyString(array $array): string
     {
         $string = 'ORDER BY ';
         foreach ($array as $key => $value) {
