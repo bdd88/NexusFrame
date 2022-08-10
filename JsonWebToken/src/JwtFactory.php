@@ -13,11 +13,12 @@ class JwtFactory
     private string|NULL $verificationKey;
     private string|NULL $signingKey;
 
-    public function __construct(Base64Url $base64Url, Rsa $rsa, Hmac $hmac)
+    public function __construct(Base64Url $base64Url, Rsa $rsa, Hmac $hmac, ?string $verificationKey = NULL, ?string $signingKey = NULL)
     {
         $this->base64Url = $base64Url;
         $this->rsa = $rsa;
         $this->hmac = $hmac;
+        $this->setKeys($verificationKey, $signingKey);
     }
     
     public function setKeys(?string $verificationKey, ?string $signingKey): void
