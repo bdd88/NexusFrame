@@ -109,18 +109,19 @@ class Jwt
 
     /**
      * Determine if the header and payload claims are good, and verify the signature for tampering.
+     * @return true|string
      */
-    public function validate(): bool
+    public function validate(): bool|string
     {
         // Check the header for issues.
         if ($this->header['typ'] !== 'JWT') {
-            throw new Exception('Type is not JWT.');
+            return 'Type is not JWT.';
         }
         if (!isset($this->header['alg'])) {
-            throw new Exception('No Algorithm specified.');
+            return 'No Algorithm specified.';
         }
         if (!isset(SELF::SUPPORTED_ALGOS[$this->header['alg']])) {
-            throw new Exception('Unsupported Algorithm. Must use one of the following: ' . implode(', ', array_keys(SELF::SUPPORTED_ALGOS)));
+            return 'Unsupported Algorithm. Must use one of the following: ' . implode(', ', array_keys(SELF::SUPPORTED_ALGOS));
         }
 
         // TODO: Check the payload claims for issues.
@@ -129,10 +130,10 @@ class Jwt
         $this->prepareForSigning();
         $verifyStatus = $this->signingAlgo->verify($this->hashingAlgoString, $this->dataToSign, $this->verificationKey, $this->signature);
         if ($verifyStatus === FALSE) {
-            throw new Exception('Signature is bad.');
+            return 'Signature is bad.';
         }
 
-        return $verifyStatus;
+        return TRUE;
     }
 }
 
