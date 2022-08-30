@@ -9,17 +9,9 @@ use Exception;
 class MySql
 {
     protected mysqli $connection;
-    protected string $hostname;
-    protected string $username;
-    protected string $password;
-    protected string $database;
 
-    public function __construct(string $hostname, string $username, string $password, string $database)
+    public function __construct(protected string $hostname, protected string $username, protected string $password, protected string $database)
     {
-        $this->hostname = $hostname;
-        $this->username = $username;
-        $this->password = $password;
-        $this->database = $database;
         $this->connect();
     }
 
