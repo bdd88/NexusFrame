@@ -1,12 +1,10 @@
 # ConfigAbstract
 This is an abstract class that can be extended in order to load, validate, and store a PHP ini configuration file as an object. If a configuration file fails validation, then an exception is thrown.
 
-## Installation
-#### Composer:
+## Composer Installation
+```
 composer require bdd88/configabstract
-
-#### Manual:
-Simply download and include/require ConfigAbstract.php
+```
 
 ## Usage
 1. Extend the ConfigAbstract class, and overwrite the 'validate' method.
