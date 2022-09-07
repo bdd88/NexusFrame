@@ -6,6 +6,7 @@ class StmtSelect extends AbstractStmt
     use TraitWhereClause;
     
     private string $columnString;
+    private string $joinString;
     private array $sorts;
     private string $orderString;
     private string $groupString;
@@ -60,6 +61,23 @@ class StmtSelect extends AbstractStmt
         return $this;
     }
 
+    public function join(string $joinType, string $secondTable, string $firstTableColumn, string $secondTableColumn): StmtSelect
+    {
+        $joinType = strtoupper($joinType);
+        $supportedTypes = array('INNER', 'LEFT', 'RIGHT', 'CROSS');
+        if (!in_array($joinType, $supportedTypes)) {
+            throw new Exception('Join type must be one of the following: inner, left, right, cross, self.');
+        }
+        $joinString = $joinType . ' JOIN ' . $this->encapColumnString($secondTable);
+
+        if ($joinType !== 'CROSS') {
+            $joinString .=  ' ON ' . $this->tableString . '.' . $this->encapColumnString($firstTableColumn) . ' = ' . $this->encapColumnString($secondTable) . '.' . $this->encapColumnString($secondTableColumn);
+        }
+
+        $this->joinString = $joinString;
+        return $this;
+    }
+
     public function groups(...$columnNames): StmtSelect
     {
         $groupString = 'GROUP BY ';
@@ -109,6 +127,9 @@ class StmtSelect extends AbstractStmt
             $queryString = 'SELECT ' . $this->columnString . ' FROM ' . $this->tableString;
         } else {
             $queryString = 'SELECT * FROM ' . $this->tableString;
+        }
+        if (isset($this->joinString)) {
+            $queryString .= ' ' . $this->joinString;
         }
         if (isset($this->matches)) {
             $queryString .= ' ' . $this->constructWhereString($this->matches);
