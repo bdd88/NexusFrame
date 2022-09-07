@@ -2,6 +2,9 @@
     "name": "bdd88/jsonwebtoken",
     "description": "A JSON Web Token authentication library.",
     "type": "library",
+    "license": [
+        "GPL-3.0-or-later"
+    ],
     "autoload": {
         "psr-4": {
             "Bdd88\\JsonWebToken\\": "src/"
