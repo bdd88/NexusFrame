@@ -8,6 +8,7 @@ class StmtSelect extends AbstractStmt
     private string $columnString;
     private array $sorts;
     private string $orderString;
+    private string $groupString;
 
     /**
      * Verify a MySql function is supported.
@@ -24,6 +25,19 @@ class StmtSelect extends AbstractStmt
             throw new Exception('MySql function is not supported. Supported functions: ' . implode(', ', $supportedFunctions));
         }
         return $functionName;
+    }
+
+    private function constructOrderString(array $sorts): string
+    {
+        $orderString = 'ORDER BY ';
+        $lastKey = array_key_last($sorts);
+        foreach ($sorts as $key => $sortString) {
+            $orderString .= $sortString;
+            if ($key !== $lastKey) {
+                $orderString .= ', ';
+            }
+        }
+        return $orderString;
     }
 
     /** Filter results to only include specified columns. If nothing is specified, all columns will be returned. */
@@ -43,6 +57,20 @@ class StmtSelect extends AbstractStmt
             }
         }
         $this->columnString = $columnString;
+        return $this;
+    }
+
+    public function groups(...$columnNames): StmtSelect
+    {
+        $groupString = 'GROUP BY ';
+        $lastKey = array_key_last($columnNames);
+        foreach ($columnNames as $key => $columnName) {
+            $groupString .= $this->encapColumnString($columnName);
+            if ($key !== $lastKey) {
+                $groupString .= ', ';
+            }
+        }
+        $this->groupString = $groupString;
         return $this;
     }
 
@@ -69,19 +97,6 @@ class StmtSelect extends AbstractStmt
         return $this;
     }
 
-    public function constructOrderString(array $sorts): string
-    {
-        $orderString = 'ORDER BY ';
-        $lastKey = array_key_last($sorts);
-        foreach ($sorts as $key => $sortString) {
-            $orderString .= $sortString;
-            if ($key !== $lastKey) {
-                $orderString .= ', ';
-            }
-        }
-        return $orderString;
-    }
-
     /**
      * Execute the SELECT query.
      *
@@ -97,6 +112,9 @@ class StmtSelect extends AbstractStmt
         }
         if (isset($this->matches)) {
             $queryString .= ' ' . $this->constructWhereString($this->matches);
+        }
+        if (isset($this->groupString)) {
+            $queryString .= ' ' . $this->groupString;
         }
         if (isset($this->sorts)) {
             $queryString .= ' ' . $this->constructOrderString($this->sorts);
