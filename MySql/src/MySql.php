@@ -3,9 +3,12 @@
 /** Factory for database connection and query objects. */
 class MySql
 {
-    protected mysqli $connection;
-
-    public function __construct(protected string $hostname, protected string $username, protected string $password, protected string $database)
+    public function __construct(
+        protected mysqli $connection,
+        protected string $hostname,
+        protected string $username,
+        protected string $password,
+        protected string $database)
     {
         $this->connect();
     }
@@ -18,7 +21,7 @@ class MySql
     /** Generate a new database connection object */
     protected function connect(): void
     {
-        $this->connection = new mysqli($this->hostname, $this->username, $this->password, $this->database);
+        $this->connection->connect($this->hostname, $this->username, $this->password, $this->database);
         if ($this->connection->connect_error) {
             throw new Exception("Connection failed: " . $this->connection->connect_error);
         }

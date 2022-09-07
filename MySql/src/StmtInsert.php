@@ -32,7 +32,8 @@ class StmtInsert extends AbstractStmt
     public function getResults(): int
     {
         $queryString = 'INSERT INTO ' . $this->tableString . ' ' . $this->insertColumnsString . ' VALUES ' . $this->insertValuesString;
-        $insertId = $this->query($this->connection, $queryString)->insert_id;
+        $query = $this->query($this->connection, $queryString);
+        $insertId = $query->insert_id;
         return $insertId;
     }
 }
