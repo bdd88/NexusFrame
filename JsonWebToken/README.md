@@ -21,13 +21,8 @@ composer require bdd88/jsonwebtoken
 Generate RSA keys seperately and supply them to the JwtFactory in PEM format.
 The composer autoloader is used in this example.
 ```
-use Bdd88\JsonWebToken\Algorithms\Hmac;
-use Bdd88\JsonWebToken\Algorithms\Rsa;
-use Bdd88\JsonWebToken\Encoding\Base64Url;
-use Bdd88\JsonWebToken\Jwt;
-use Bdd88\JsonWebToken\JwtFactory;
 require './vendor/autoload.php';
-$factory = new JwtFactory(new Base64Url(), new Rsa(), new Hmac(), $publicKey, $privateKey);
+$factory = new \Bdd88\JsonWebToken\JwtFactory($publicKey, $privateKey);
 ```
 
 #### Generating
