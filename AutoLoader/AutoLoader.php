@@ -1,7 +1,12 @@
 <?php
-namespace bdd88\AutoLoader;
+namespace Bdd88\AutoLoader;
 
-/** A general autoloader that follows PSR-4 specifications. */
+/**
+ * A lazy autoloader that follows PSR-4 specifications.
+ * 
+ * @link https://github.com/bdd88/autoloader
+ * @link https://www.php-fig.org/psr/psr-4/
+ */
 class AutoLoader
 {
     private array $namespaces;
@@ -33,7 +38,7 @@ class AutoLoader
     public function register(string $namespace, string $path): void
     {
         $namespace = $this->validateNamespace($namespace);
-        $this->namespaces[$namespace] = $path;
+        $this->namespaces[$namespace] = realpath($path);
     }
 
     /**
