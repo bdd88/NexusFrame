@@ -9,8 +9,5 @@
             "Bdd88\\ConfigAbstract\\": ""
         }
     },
-    "archive": {
-        "exclude": ["/tests/"]
-    },
     "require": {}
 }
