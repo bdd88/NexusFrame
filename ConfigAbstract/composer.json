@@ -9,5 +9,7 @@
             "Bdd88\\ConfigAbstract\\": ""
         }
     },
-    "require": {}
+    "require": {
+        "bdd88/servicecontainer": "dev-main"
+    }
 }
