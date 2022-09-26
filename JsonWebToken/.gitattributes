@@ -1,0 +1,6 @@
+.* export-ignore
+tests export-ignore
+composer.json export-ignore
+composer.lock export-ignore
+LICENSE.md export-ignore
+README.md export-ignore
