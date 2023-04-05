@@ -117,10 +117,7 @@ class Jwt
         if ($this->header['typ'] !== 'JWT') {
             return 'Type is not JWT.';
         }
-        if (!isset($this->header['alg'])) {
-            return 'No Algorithm specified.';
-        }
-        if (!isset(SELF::SUPPORTED_ALGOS[$this->header['alg']])) {
+        if (!isset($this->header['alg']) || !isset(SELF::SUPPORTED_ALGOS[$this->header['alg']])) {
             return 'Unsupported Algorithm. Must use one of the following: ' . implode(', ', array_keys(SELF::SUPPORTED_ALGOS));
         }
 

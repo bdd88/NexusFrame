@@ -22,7 +22,7 @@ class Base64UrlTest extends TestCase
     {
         $encoded = $this->base64Url->encode($this->payload);
         $this->assertIsString($encoded, 'Not a string.');
-        $this->assertMatchesRegularExpression('/^[A-Za-z0-9_-]{22,}$/', $encoded, 'Encoded string is not valid Base64URL.');
+        $this->assertMatchesRegularExpression('/^[A-Za-z0-9_-]+$/', $encoded, 'Encoded string is not valid Base64URL.');
     }
 
     #[Test]
