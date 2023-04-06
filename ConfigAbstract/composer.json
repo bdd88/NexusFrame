@@ -1,0 +1,15 @@
+{
+    "name": "bdd88/configabstract",
+    "description": "Abstract class for loading and validating configuration files.",
+    "license": [
+        "GPL-3.0-or-later"
+    ],
+    "autoload": {
+        "psr-4": {
+            "Bdd88\\ConfigAbstract\\": ""
+        }
+    },
+    "require": {
+        "bdd88/servicecontainer": "dev-main"
+    }
+}
