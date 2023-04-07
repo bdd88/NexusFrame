@@ -1,155 +1,111 @@
 <?php
 namespace NexusFrame\Dependency;
 
+use Exception;
 use ReflectionClass;
 
 /**
- * An automated recursive dependency injection container.
+ * An autowiring recursive dependency injection container.
  * 
- * @version 1.1.1
- * @link https://github.com/bdd88/ServiceContainer
+ * @version 1.2.0
  */
 class ServiceContainer
 {
-    private array $classReflections;
-    private array $dependencyMaps;
+    private array $reflections;
+    private array $parameters;
     private array $objects;
 
-    /** Ensure consistency for class namespaces (since reflection doesn't use a leading slash). */
+    /** Ensure consistency for class namespaces by removing the leading slash. */
     private function validateNamespace(string $className): string
     {
-        return ($className[0] === '\\') ? substr($className, 1) : $className;
-    }
-
-    /** Retrieve or create a reflection of an instantiable class. */
-    private function getReflection(string $className): ReflectionClass|NULL
-    {
-        // Retrieve the reflection if already in the map.
-        if (isset($this->classReflections[$className])) {
-            return $this->classReflections[$className];
+        if (!empty($className) && $className[0] === '\\') {
+            $className = substr($className, 1);
         }
-
-        // Check if the supplied className is actually a class.
-        if (class_exists($className) === FALSE) {
-            return NULL;
-        }
-
-        // Create the reflection and store it for future use before returning.
-        $classReflection = new ReflectionClass($className);
-        if ($classReflection->isInstantiable() === FALSE) {
-            return NULL;
-        }
-        $this->classReflections[$className] = $classReflection;
-        return $classReflection;
-    }
-
-    /** Use type hinting in a class constructor to list the direct object dependencies. */
-    private function listClassDependencies(string $className): array|NULL
-    {
-        // Retrieve the dependency map if it has already been calculated previously.
-        if (isset($this->dependencyMaps[$className])) {
-            return $this->dependencyMaps[$className];
-        }
-
-        // Get the class reflection.
-        $classReflection = $this->getReflection($className);
-        if ($classReflection === NULL) {
-            return NULL;
-        }
-
-        // Check to see if a constructor exists.
-        $classConstructor = $classReflection->getConstructor();
-        if ($classConstructor === NULL) {
-            return NULL;
-        }
-
-        // Check to see if there are dependencies.
-        if ($classConstructor->getNumberOfParameters() === 0) {
-            return NULL;
-        }
-
-        // Use reflection to examine constructor type hinting, and store the class dependencies in the mapping.
-        $dependencies = array();
-        foreach ($classConstructor->getParameters() as $parameter) {
-            $dependencyName = $parameter->getType()->getName();
-            if (class_exists($dependencyName)) {
-                $dependencies[] = $dependencyName;
-            }
-        }
-        $this->dependencyMaps[$className] = $dependencies;
-        return $dependencies;
-    }
-
-    /** Recursively create the tree of class dependencies for the requested object class. */
-    private function createDependencyTree(string $className): array
-    {
-        $dependencyTree[] = $className;
-        $branch = $this->listClassDependencies($className);
-        if ($branch !== NULL) {
-            foreach ($branch as $leaf) {
-                $dependencyTree = array_merge($dependencyTree, $this->createDependencyTree($leaf));
-            }
-        }
-        return $dependencyTree;
+        return $className;
     }
 
     /**
-     * Create, store, and return an object of the requested class.
+     * Retrieve a class reflection. Create the reflection and store it if it doesn't exist already.
      *
-     * @param string $className The class name including namespace of the object to be created.
-     * @param array|null $parameters (optional) Additional non-object arguments.
-     * @return object|FALSE Returns the requested object on success, or FALSE if the object couldn't be created.
+     * @param string $className Name of a class including the full namespace.
+     * @throws Exception Throws exception if the class is missing a definition or can't be instantiated.
+     * @return ReflectionClass The reflection of the given class.
      */
-    public function create(string $className, ?array $parameters = NULL): object|FALSE
+    private function getReflection(string $className): ReflectionClass
     {
-        // Check the class can be instantiated.
+        if (!class_exists($className)) throw new Exception('Missing class definition: ' . $className);
+
+        if (!isset($this->reflections[$className])) $this->reflections[$className] = new ReflectionClass($className);
+
+        if ($this->reflections[$className]->isInstantiable() === FALSE) throw new Exception('Class can\'t be instantiated.');
+
+        return $this->reflections[$className];
+    }
+
+    /**
+     * Retrieve a list of parameters with their type hints for a given class. If a list of parameters doesn't exist yet, create and store it.
+     *
+     * @param string $className Name of a class including the full namespace.
+     * @return array Associative array containing $varName => $typeHint.
+     */
+    private function getParameters(ReflectionClass $reflection): array
+    {
+        $className = $reflection->getName();
+        if (isset($this->parameters[$className])) return $this->parameters[$className];
+        $parameters = array();
+        if ($reflection !== NULL && $reflection->getConstructor() !== NULL) {
+            foreach ($reflection->getConstructor()->getParameters() as $parameter) {
+                $varName = $parameter->getName();
+                $typeHint = $parameter->getType()->getName();
+                $parameters[$varName] = $typeHint;
+            }
+        }
+        $this->parameters[$className] = $parameters;
+        return $parameters;
+    }
+
+    /**
+     * Creates an object of a given class by using the supplied arguments and recursively instantiating and injecting all class dependencies.
+     *
+     * @param string $className Name of a class including the full namespace.
+     * @param array $arguments Optional additional arguments supplied in an array.
+     * @throws Exception Throws an exception if a class can't be instantiated, a class definition is missing, or an argument is missing.
+     * @return object Returns the requested object with all dependencies injected.
+     */
+    public function create(string $className, array $arguments = array()): object
+    {
         $className = $this->validateNamespace($className);
-        if ($this->getReflection($className) === NULL) {
-            return FALSE;
+        $reflection = $this->getReflection($className);
+        $parameters = $this->getParameters($reflection);
+        $inject = array();
+
+        while (sizeof($parameters) > 0) {
+            $parameter = array_shift($parameters);
+            if (isset($this->objects[$parameter])) {
+                $inject[] = $this->objects[$parameter];
+            } elseif (class_exists($parameter)) {
+                $inject[] = $this->create($parameter);
+            } else {
+                if (empty($arguments)) throw new Exception('Missing class definition or arguments for: ' . $className);
+                $inject[] = array_shift($arguments);
+            }
         }
 
-        // Create, store, and inject each object in the tree from leaf to root.
-        $dependencyTree = $this->createDependencyTree($className);
-        foreach (array_reverse($dependencyTree) as $dependencyName) {
-
-            // Immediately return the requested object if it has already been intantiated.
-            if (isset($this->objects[$dependencyName])) {
-                continue;
-            }
-
-            // Build the constructor arguments array from stored objects.
-            $arguments = array();
-            if (isset($this->dependencyMaps[$dependencyName])) {
-                foreach ($this->dependencyMaps[$dependencyName] as $injection) {
-                    $arguments[] = $this->objects[$injection];
-                }
-            }
-
-            // Add user supplied arguments to the arguments array.
-            if ($dependencyName === $className && isset($parameters)) {
-                $arguments = array_merge($arguments, $parameters);
-            }
-
-            // Inject depedendencies and store the newly instantiated object.
-            $classReflection = $this->getReflection($dependencyName);
-            $this->objects[$dependencyName] = $classReflection->newInstanceArgs($arguments);
-        }
-
+        $this->objects[$className] = $reflection->newInstanceArgs($inject);
         return $this->objects[$className];
     }
 
     /**
-     * Retrieve a previously created object.
+     * Retrieve a requested object, if it exists.
      *
-     * @param string $className The class name including namespace of the object to be created.
-     * @return object|FALSE Returns the requested object on success, or FALSE if the object hasn't been created yet.
+     * @param string $className $className Name of a class including the full namespace.
+     * @return object|NULL Returns NULL if the object hasn't been created yet.
      */
-    public function get(string $className): object|FALSE
+    public function get(string $className): object|NULL
     {
         $className = $this->validateNamespace($className);
-        return $this->objects[$className] ?? FALSE;
+        if (isset($this->objects[$className])) return $this->objects[$className];
+        return NULL;
     }
 
 }
-
-?>
