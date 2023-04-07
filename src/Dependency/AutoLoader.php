@@ -22,13 +22,13 @@ class AutoLoader
         $this->register('', $dir);
     }
 
-    /** Check for and remove a leading slash from namespace string for consistency. */
-    private function validateNamespace(string $namespace): string
+    /** Ensure consistency for class namespaces by removing the leading slash. */
+    private function validateNamespace(string $className): string
     {
-        if (strpos($namespace, '\\') === 0) {
-            $namespace = substr($namespace, 1);
+        if (!empty($className) && $className[0] === '\\') {
+            $className = substr($className, 1);
         }
-        return $namespace;
+        return $className;
     }
 
     /**
