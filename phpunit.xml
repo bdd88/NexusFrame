@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/|version|/phpunit.xsd"
-         processIsolation='false'
-         cacheResult='false'
-         bootstrap='tests/bootstrap.php'
-         displayDetailsOnTestsThatTriggerWarnings='true'>
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/|version|/phpunit.xsd"
+    processIsolation='false'
+    cacheResult='false'
+    bootstrap='tests/bootstrap.php'
+    displayDetailsOnTestsThatTriggerWarnings='true'>
 
     <testsuites>
 
