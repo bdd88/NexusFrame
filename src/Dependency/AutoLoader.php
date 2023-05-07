@@ -3,8 +3,6 @@ namespace NexusFrame\Dependency;
 
 /**
  * A lazy autoloader that follows PSR-4 specifications.
- * 
- * @link https://github.com/bdd88/autoloader
  * @link https://www.php-fig.org/psr/psr-4/
  */
 class AutoLoader
@@ -74,5 +72,3 @@ class AutoLoader
     }
 
 }
-
-?>
