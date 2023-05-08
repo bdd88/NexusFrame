@@ -20,7 +20,7 @@ class JwtFactory
         $this->hmac = new Hmac();
         $this->setKeys($verificationKey, $signingKey);
     }
-    
+
     public function setKeys(?string $verificationKey, ?string $signingKey): void
     {
         $this->verificationKey = $verificationKey;
@@ -44,5 +44,3 @@ class JwtFactory
     }
 
 }
-
-?>

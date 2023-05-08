@@ -133,5 +133,3 @@ class Jwt
         return TRUE;
     }
 }
-
-?>

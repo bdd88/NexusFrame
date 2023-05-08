@@ -10,7 +10,7 @@ class Hmac implements SigningAlgoInterface
             $signature = hash_hmac($hashAlgo, $data, $key, TRUE);
             return $signature;
         }
-    
+
         /** Verify an HMAC signature by comparing it to a newly generated signature. */
         public function verify(string $hashAlgo, string $data, string $key, string $signature): bool
         {
