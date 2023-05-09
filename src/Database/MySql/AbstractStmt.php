@@ -1,5 +1,9 @@
 <?php
 namespace NexusFrame\Database\MySql;
+
+use mysqli;
+use Exception;
+
 /** Base class used to create and execute MySql statements/queries. */
 abstract class AbstractStmt
 {
@@ -49,5 +53,3 @@ abstract class AbstractStmt
     }
 
 }
-
-?>

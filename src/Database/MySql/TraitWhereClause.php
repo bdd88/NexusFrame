@@ -1,5 +1,7 @@
 <?php
 namespace NexusFrame\Database\MySql;
+
+use Exception;
 /** Trait used by statement classes that implement the MySql WHERE clause. */
 trait TraitWhereClause
 {
@@ -56,7 +58,7 @@ trait TraitWhereClause
                 }
                 break;
         }
-        
+
         // Add the new match string to the array of matches to use.
         $this->matches[] = '(' . $matchString . ')';
         return $this;

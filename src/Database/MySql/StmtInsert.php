@@ -37,5 +37,3 @@ class StmtInsert extends AbstractStmt
         return $insertId;
     }
 }
-
-?>

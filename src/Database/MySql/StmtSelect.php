@@ -1,10 +1,12 @@
 <?php
 namespace NexusFrame\Database\MySql;
+
+use Exception;
 /** Constructs and executes MySql SELECT queries. */
 class StmtSelect extends AbstractStmt
 {
     use TraitWhereClause;
-    
+
     private string $columnString;
     private string $joinString;
     private array $sorts;
@@ -149,5 +151,3 @@ class StmtSelect extends AbstractStmt
         return $results;
     }
 }
-
-?>

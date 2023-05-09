@@ -1,5 +1,8 @@
 <?php
 namespace NexusFrame\Database\MySql;
+
+use mysqli;
+use Exception;
 /** Factory for database connection and query objects. */
 class MySql
 {
@@ -58,5 +61,3 @@ class MySql
     }
 
 }
-
-?>

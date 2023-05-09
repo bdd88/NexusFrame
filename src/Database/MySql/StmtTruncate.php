@@ -3,7 +3,7 @@ namespace NexusFrame\Database\MySql;
 /** Constructs and executes MySql TRUNCATE queries. */
 class StmtTruncate extends AbstractStmt
 {
-    
+
     /**
      * Execute the TRUNCATE query.
      *
@@ -17,5 +17,3 @@ class StmtTruncate extends AbstractStmt
     }
 
 }
-
-?>

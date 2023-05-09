@@ -4,7 +4,7 @@ namespace NexusFrame\Database\MySql;
 class StmtDelete extends AbstractStmt
 {
     use TraitWhereClause;
-    
+
     /**
      * Execute the DELETE query.
      *
@@ -21,5 +21,3 @@ class StmtDelete extends AbstractStmt
     }
 
 }
-
-?>
