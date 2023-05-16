@@ -2,21 +2,21 @@
 namespace NexusFrame\Webpage\Controller;
 
 use NexusFrame\Dependency\ServiceContainer;
-use NexusFrame\Webpage\Model\ViewFactory;
+use NexusFrame\Webpage\Model\View;
 
 /** Handles the primary flow of data between the user, controllers, and models. */
 class Main
 {
     private ServiceContainer $serviceContainer;
     private Router $router;
-    private ViewFactory $viewFactory;
+    private View $view;
     private array $pages;
 
-    public function __construct(ServiceContainer $serviceContainer, Router $router, ViewFactory $viewFactory)
+    public function __construct(ServiceContainer $serviceContainer, Router $router, View $view)
     {
         $this->serviceContainer = $serviceContainer;
         $this->router = $router;
-        $this->viewFactory = $viewFactory;
+        $this->view = $view;
     }
 
     /**
@@ -61,7 +61,7 @@ class Main
         // Instantiate the page object, generate page data, inject page data into the view, and return the output HTML code.
         $pageObject = $this->serviceContainer->create($this->pages[$pageName]['class']);
         $pageData = $pageObject->generate($this->pages[$pageName]['parameters']);
-        $output = $this->viewFactory->generate($this->pages[$pageName]['view'], $pageData);
+        $output = $this->view->generate($this->pages[$pageName]['view'], $pageData);
         return $output;
     }
 }
