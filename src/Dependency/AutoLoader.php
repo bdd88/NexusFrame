@@ -10,17 +10,34 @@ class AutoLoader
     private array $namespaces;
 
     /**
-     * Set a catch all directory.
+     * Create the autoloader object.
      *
-     * @param string|null $defaultDirectory Defaults to the current working directory if not specified.
+     * @param boolean|null $autoConfigure (optional) Call the autoConfigure method during construction. Defaults to TRUE.
      */
-    public function __construct(?string $defaultDirectory = NULL)
+    public function __construct(?bool $autoConfigure = NULL)
     {
-        $dir = $defaultDirectory ?? getcwd();
-        $this->register('', $dir);
+        $autoConfigure ??= TRUE;
+        if ($autoConfigure) $this->autoConfigure();
     }
 
-    /** Ensure consistency for class namespaces by removing the leading slash. */
+    /**
+     * Register the autoloader load method with spl_autoload_register, register an empty namespace to the current working directory, and register the framework namespace at the appropriate directory.
+     *
+     * @return void
+     */
+    public function autoConfigure(): void
+    {
+        spl_autoload_register(array($this, 'load'));
+        $this->register('', getcwd());
+        $this->register('NexusFrame', dirname(__DIR__, 1));
+    }
+
+    /**
+     * Ensure consistency for class namespaces by removing the leading slash.
+     *
+     * @param string $className
+     * @return string
+     */
     private function validateNamespace(string $className): string
     {
         if (!empty($className) && $className[0] === '\\') {
@@ -32,6 +49,10 @@ class AutoLoader
     /**
      * Register a namespace to a directory.
      * Sub namespace directories will be determined automatically using the base namespace directory (per the PSR-4 spec), unless they are manually registered to a different directory.
+     *
+     * @param string $namespace
+     * @param string $path
+     * @return void
      */
     public function register(string $namespace, string $path): void
     {
