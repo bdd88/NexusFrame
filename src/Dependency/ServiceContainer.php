@@ -4,11 +4,7 @@ namespace NexusFrame\Dependency;
 use Exception;
 use ReflectionClass;
 
-/**
- * An autowiring recursive dependency injection container.
- * 
- * @version 1.2.0
- */
+/** An autowiring recursive dependency injection container. **/
 class ServiceContainer
 {
     private array $reflections;
