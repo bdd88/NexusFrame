@@ -7,20 +7,12 @@
     displayDetailsOnTestsThatTriggerWarnings='true'>
 
     <testsuites>
-
         <testsuite name="unit">
             <directory>tests/unit</directory>
         </testsuite>
-
         <testsuite name="integration">
             <directory>tests/integration</directory>
         </testsuite>
-
-        <testsuite name="Jwt">
-            <directory>tests/unit/Token/Jwt</directory>
-            <directory>tests/integration/Token/Jwt</directory>
-        </testsuite>
-
     </testsuites>
 
     <coverage includeUncoveredFiles="true"
@@ -32,6 +24,7 @@
         </include>
         <report>
             <html outputDirectory="coverage" lowUpperBound="50" highLowerBound="90"/>
+            <text outputFile="./tests/coverage.txt" showUncoveredFiles="false" showOnlySummary="false"/>
         </report>
     </coverage>
 
