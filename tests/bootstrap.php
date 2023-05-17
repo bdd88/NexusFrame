@@ -1,7 +1,8 @@
 <?php
 
 // Initiate the autoloader.
-require_once './src/autoload.php';
+require_once './src/Dependency/AutoLoader.php';
+new \NexusFrame\Dependency\AutoLoader();
 
 // Return a random string that may contain uppercase letters, lowercase letters, numbers, and special characters.
 function random_string(int $length = NULL): string
