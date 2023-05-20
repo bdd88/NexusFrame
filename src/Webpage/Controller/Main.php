@@ -30,14 +30,22 @@ class Main
      * @param boolean|null $enabled Allow the page to be viewed.
      * @return void
      */
-    public function createPage(string $name, string $class, string $viewPath, ?array $parameters = NULL, ?bool $loginRequired = NULL, ?bool $enabled = NULL): void
+    public function createPage(
+        string $name, string $class,
+        string $pageViewPath,
+        ?string $layoutViewPath = NULL,
+        ?array $parameters = NULL,
+        ?bool $loginRequired = NULL,
+        ?bool $enabled = NULL
+        ): void
     {
         $parameters ??= array();
         $loginRequired ??= FALSE;
         $enabled ??= TRUE;
         $this->pages[$name] = array(
             'class' => $class,
-            'view' => $viewPath,
+            'pageView' => $pageViewPath,
+            'layoutView' => $layoutViewPath,
             'parameters' => $parameters,
             'login' => $loginRequired,
             'enabled' => $enabled
@@ -61,7 +69,10 @@ class Main
         // Instantiate the page object, generate page data, inject page data into the view, and return the output HTML code.
         $pageObject = $this->serviceContainer->create($this->pages[$pageName]['class']);
         $pageData = $pageObject->generate($this->pages[$pageName]['parameters']);
-        $output = $this->view->generate($this->pages[$pageName]['view'], $pageData);
+        $output = $this->view->generate($this->pages[$pageName]['pageView'], $pageData);
+        if (isset($this->pages[$pageName]['layoutView'])) {
+            $output = $this->view->generate($this->pages[$pageName]['layoutView'], $output);
+        }
         return $output;
     }
 }
