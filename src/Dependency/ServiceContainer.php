@@ -51,9 +51,12 @@ class ServiceContainer
         $parameters = array();
         if ($reflection !== NULL && $reflection->getConstructor() !== NULL) {
             foreach ($reflection->getConstructor()->getParameters() as $parameter) {
-                $varName = $parameter->getName();
-                $typeHint = $parameter->getType()->getName();
-                $parameters[$varName] = $typeHint;
+                $parameters[$parameter->getName()] = array(
+                    'name' => $parameter->getName(),
+                    'typeHint' => $parameter->getType()->getName(),
+                    'optional' => $parameter->isOptional(),
+                    'position' => $parameter->getPosition()
+                );
             }
         }
         $this->parameters[$className] = $parameters;
@@ -77,13 +80,24 @@ class ServiceContainer
 
         while (sizeof($parameters) > 0) {
             $parameter = array_shift($parameters);
-            if (isset($this->objects[$parameter])) {
-                $inject[] = $this->objects[$parameter];
-            } elseif (class_exists($parameter)) {
-                $inject[] = $this->create($parameter);
+            if (isset($this->objects[$parameter['typeHint']])) {
+                // If an object already exists for the type hint, use it.
+                $inject[] = $this->objects[$parameter['typeHint']];
+            } elseif (class_exists($parameter['typeHint'])) {
+                // If an object doesn't exist already, but the type hint is a class, then create it.
+                $inject[] = $this->create($parameter['typeHint']);
             } else {
-                if (empty($arguments)) throw new Exception('Missing class definition or arguments for: ' . $className);
-                $inject[] = array_shift($arguments);
+                // Use manually supplied arguments.
+                if (empty($arguments) === FALSE) {
+                    $inject[] = array_shift($arguments);
+                } else {
+                    if ($parameter['optional'] === FALSE) {
+                        throw new Exception('Missing parameter #' . $parameter['position'] . ' ' . $parameter['typeHint'] . ' $' . $parameter['name'] . ' for class ' . $className);
+                    }
+                    // NOTE: The built in mysqli class will throw an exception if null is provided as an argument, despite the parameters being listed as nullable.
+                    // Workaround is to do nothing with optional parameters, rather than explicitly passing NULL (even though passing null for a nullable parameter is totally correct).
+                    //$inject[] = NULL;
+                }
             }
         }
 
