@@ -11,6 +11,15 @@ class ServiceContainer
     private array $parameters;
     private array $objects;
 
+    public function __construct()
+    {
+        /**
+         * Store a self reference so that top level controllers in sub applications don't each instantiate their own copy of ServiceContainer.
+         * ServiceContainer is not intended to be used as a Singleton, and should only be used by the primary top level controller in each application.
+         */
+        $this->objects[$this->validateNamespace(__CLASS__)] = $this;
+    }
+
     /** Ensure consistency for class namespaces by removing the leading slash. */
     private function validateNamespace(string $className): string
     {
