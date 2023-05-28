@@ -16,16 +16,16 @@ class Router
     /** Store a new route. */
     public function create(Route $route): void
     {
-        $this->routes[$route->name] = $route;
+        $this->routes[$route->getName()] = $route;
     }
 
     public function get(string $requestedPage): Route|FALSE
     {
         if (!isset($this->routes[$requestedPage])) {
             $errorCode = 404;
-        } elseif ($this->routes[$requestedPage]->enabled === FALSE) {
+        } elseif ($this->routes[$requestedPage]->getEnabled() === FALSE) {
             $errorCode = 403;
-        } elseif ($this->routes[$requestedPage]->loginRequired === TRUE && $this->session->status() === FALSE) { // TODO: Implement permissions check.
+        } elseif ($this->routes[$requestedPage]->getLoginRequired() === TRUE && $this->session->status() === FALSE) { // TODO: Implement permissions check.
             $errorCode = 401;
         }
         if (isset($errorCode)) {

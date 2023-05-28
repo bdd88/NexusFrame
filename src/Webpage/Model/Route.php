@@ -4,13 +4,13 @@ namespace NexusFrame\Webpage\Model;
 /** Stores data for routing to and generating a page. */
 class Route
 {
-    public string $name;
-    public string $class;
-    public string $pageViewPath;
-    public string $layoutViewPath;
-    public array $parameters;
-    public bool $loginRequired;
-    public bool $enabled;
+    private string $name;
+    private string $class;
+    private string $pageViewPath;
+    private string $layoutViewPath;
+    private array $parameters;
+    private bool $loginRequired;
+    private bool $enabled;
 
     public function __construct(string $name)
     {
@@ -35,7 +35,7 @@ class Route
         return $this;
     }
 
-    public function setParameters(string $parameters): self
+    public function setParameters(array $parameters): self
     {
         $this->parameters = $parameters;
         return $this;
@@ -51,5 +51,40 @@ class Route
     {
         $this->enabled = $enabled;
         return $this;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function getClass(): string
+    {
+        return $this->class;
+    }
+
+    public function getPageViewPath(): string
+    {
+        return $this->pageViewPath;
+    }
+
+    public function getLayoutViewPath(): string
+    {
+        return $this->layoutViewPath;
+    }
+
+    public function getParameters(): array
+    {
+        return $this->parameters;
+    }
+
+    public function getLoginRequired(): bool
+    {
+        return $this->loginRequired;
+    }
+
+    public function getEnabled(): bool
+    {
+        return $this->enabled;
     }
 }

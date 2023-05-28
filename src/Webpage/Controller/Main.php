@@ -41,11 +41,11 @@ class Main
         $route = $this->router->get($requestedPage);
         if ($route === FALSE) return FALSE;
         /** @var AbstractPage $pageObject */
-        $pageObject = $this->serviceContainer->create($route->class);
-        $pageData = $pageObject->generate($route->parameters);
-        $output = $this->view->generate($route->pageViewPath, $pageData);
-        if (isset($route->layoutViewPath)) {
-            $output = $this->view->generate($route->layoutViewPath, $output);
+        $pageObject = $this->serviceContainer->create($route->getClass());
+        $pageData = $pageObject->generate($route->getParameters());
+        $output = $this->view->generate($route->getPageViewPath(), $pageData);
+        if ($route->getLayoutViewPath() !== NULL) {
+            $output = $this->view->generate($route->getLayoutViewPath(), $output);
         }
         return $output;
     }
