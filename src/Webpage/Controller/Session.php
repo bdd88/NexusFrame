@@ -9,7 +9,7 @@ class Session
     public function __construct(
         private AccountManager $accountManager,
         private Logger $logger,
-        private int $loginTimeout = NULL)
+        private ?int $loginTimeout = NULL)
     {
         $this->loginTimeout ??= 3600;
         $this->start();

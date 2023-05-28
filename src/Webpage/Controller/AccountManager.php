@@ -9,13 +9,13 @@ class AccountManager
 {
     public function __construct(
         private MySql $mySql,
-        private string $table = NULL,
-        private string $idCol = NULL,
-        private string $usernameCol = NULL,
-        private string $hashCol = NULL,
-        private string $createdCol = NULL,
-        private string $seenCol = NULL,
-        private string $ipCol = NULL)
+        private ?string $table = NULL,
+        private ?string $idCol = NULL,
+        private ?string $usernameCol = NULL,
+        private ?string $hashCol = NULL,
+        private ?string $createdCol = NULL,
+        private ?string $seenCol = NULL,
+        private ?string $ipCol = NULL)
     {
         $this->table ??= 'accounts';
         $this->idCol ??= 'account_id';

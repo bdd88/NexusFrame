@@ -15,8 +15,6 @@ class Router
         } elseif ($configuredPages[$requestedPage]['enabled'] === FALSE) {
             $errorCode = 403;
         } elseif ($configuredPages[$requestedPage]['loginRequired'] === TRUE && $this->session->status() === FALSE) { // TODO: Implement permissions check.
-            $errorCode = 402;
-        } elseif ($configuredPages[$requestedPage]['login'] === TRUE) {
             $errorCode = 401;
         }
         if (isset($errorCode)) {
