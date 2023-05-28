@@ -38,16 +38,16 @@ class StmtPrepared extends AbstractStmt
     /**
      * Execute the prepared statement and return the results.
      *
-     * @return array
+     * @return array|integer An associative array of results (for SELECT and similar) or the number of rows affected (for everything else).
      */
-    public function getResults(): array
+    public function getResults(): array|int
     {
         $this->statement->execute();
-        $this->statement->bind_result($results);
-        $this->statement->fetch();
-        if ($this->statement === FALSE) {
-            throw new Exception('Prepared statement failed: ' . $this->query . ' Error: ' . $this->connection->error);
+        if ($this->statement->errno !== 0) {
+            throw new Exception('Prepared statement failed: ' . $this->query . ' Error: ' . $this->statement->error);
         }
-        return $results;
+        $results = $this->statement->get_result();
+        $output = ($results === FALSE) ? $this->statement->affected_rows : $results->fetch_all(MYSQLI_ASSOC);
+        return $output;
     }
 }

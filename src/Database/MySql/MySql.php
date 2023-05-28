@@ -30,6 +30,12 @@ class MySql
         }
     }
 
+    /** Generate a new prepared statement object */
+    public function preparedStatement(): StmtPrepared
+    {
+        return new StmtPrepared($this->connection, $this->database);
+    }
+
     /** Generate a new create (INSERT statement) object. */
     public function create(): StmtInsert
     {
