@@ -3,12 +3,9 @@ namespace NexusFrame\Webpage\Controller;
 
 class Router
 {
-    //private Session $session;
-
     /** Store the routes from the config file. */
-    public function __construct()
+    public function __construct(private Session $session)
     {
-        //$this->session = $session;
     }
 
     public function route(array $configuredPages, string $requestedPage): string|FALSE
@@ -17,7 +14,8 @@ class Router
             $errorCode = 404;
         } elseif ($configuredPages[$requestedPage]['enabled'] === FALSE) {
             $errorCode = 403;
-        //} elseif ($configuredPages[$requestedPage]['loginRequired'] === TRUE && $this->session->status() === FALSE) { // TODO: Implement session checking once session class is fixed.
+        } elseif ($configuredPages[$requestedPage]['loginRequired'] === TRUE && $this->session->status() === FALSE) { // TODO: Implement permissions check.
+            $errorCode = 402;
         } elseif ($configuredPages[$requestedPage]['login'] === TRUE) {
             $errorCode = 401;
         }
