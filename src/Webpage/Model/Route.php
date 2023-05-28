@@ -7,7 +7,7 @@ class Route
     private string $name;
     private string $class;
     private string $pageViewPath;
-    private string $layoutViewPath;
+    private ?string $layoutViewPath;
     private array $parameters;
     private bool $loginRequired;
     private bool $enabled;
@@ -15,6 +15,10 @@ class Route
     public function __construct(string $name)
     {
         $this->name = $name;
+        $this->layoutViewPath = NULL;
+        $this->parameters = array();
+        $this->loginRequired = FALSE;
+        $this->enabled = TRUE;
     }
 
     public function setClass(string $class): self
@@ -68,7 +72,7 @@ class Route
         return $this->pageViewPath;
     }
 
-    public function getLayoutViewPath(): string
+    public function getLayoutViewPath(): string|NULL
     {
         return $this->layoutViewPath;
     }
