@@ -75,10 +75,11 @@ class ServiceContainer
     /**
      * Creates an object of a given class by using the supplied arguments and recursively instantiating and injecting all class dependencies.
      *
-     * @param string $className Name of a class including the full namespace.
+     * @template T of object
+     * @param class-string<T> $className Fully qualified namespace of the class.
      * @param array $arguments Optional additional arguments supplied in an array.
      * @throws Exception Throws an exception if a class can't be instantiated, a class definition is missing, or an argument is missing.
-     * @return object Returns the requested object with all dependencies injected.
+     * @return T The requested object with all dependencies injected.
      */
     public function create(string $className, array $arguments = array()): object
     {
