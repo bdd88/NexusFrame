@@ -2,40 +2,33 @@
 namespace NexusFrame\Webpage\Controller;
 
 use NexusFrame\Utility\Logger;
-use NexusFrame\Database\MySql\MySql;
 
 /** Handles user sessions. */
 class Session
 {
-    private MySql $mySql;
-    private Logger $logger;
-    private int $accountId;
-
-    public function __construct(MySql $mySql, Logger $logger)
+    public function __construct(
+        private AccountManager $accountManager,
+        private Logger $logger,
+        private int $loginTimeout = NULL)
     {
-        $this->mySql = $mySql;
-        $this->logger = $logger;
+        $this->loginTimeout ??= 3600;
         $this->start();
     }
 
-    /** Return the account ID of the current session. */
-    public function getAccountId(): int
-    {
-        return $this->accountId;
-    }
-
     /** Attempt to authenticate the user. */
-    public function authenticate(string $username, string $password, string $ip): bool
+    public function authenticate(string $username, string $password): bool
     {
-        $userId = $this->mySql->verifyLogin($username, $password);  // TODO: Created prepared statement for authentication against the database.
-        if ($userId === FALSE) {
+        $ip = $_SERVER['REMOTE_ADDR'];
+        if ($this->accountManager->authenticate($username, $password) === FALSE) {
             $this->logger->log('login', "IP: $ip User: $username - Failed Login.");
             return FALSE;
-        } else {
-            $this->update($userId);
-            $this->logger->log('login', "IP: $ip User: $username - Successful Login.");
-            return TRUE;
         }
+        session_regenerate_id();
+        $_SESSION['accountId'] = $this->accountManager->getId($username);
+        $_SESSION['username'] = $this->accountManager->getUsername($_SESSION['accountId']);
+        $this->update();
+        $this->logger->log('login', "IP: $ip User: $username - Successful Login.");
+        return TRUE;
     }
 
     /** Create session and store data in a cookie. */
@@ -51,34 +44,28 @@ class Session
         }
     }
 
-    /** Update session data. */
-    private function update(int $id): void
+    /** Refresh the logout expiration, set the last seen time, and regenerate session id. */
+    private function update(): void
     {
-        $this->accountId = $id;
-        $_SESSION['accountId'] = $this->accountId;
-        $_SESSION['expire'] = time() + $this->appSettings['login_timeout']; // TODO: Pull settings from config, database, or require as a parameter.
-        $this->mySql->update('accounts', [
-            ['account_id', 'isEqual', $this->accountId]
-        ], ['lastSeen' => time()]);
-        session_regenerate_id();
+        $currentTime = time();
+        $_SESSION['expire'] = $currentTime + $this->loginTimeout;
+        $this->accountManager->setSeen($_SESSION['accountId'], $currentTime, $_SERVER['REMOTE_ADDR']);
     }
 
     /** Check the current session, and update it based on session expiration. */
     public function status(): bool
     {
-        if (!isset($_SESSION['accountId'])) return FALSE;
-        if (time() >= $_SESSION['expire']) {
+        if (!isset($_SESSION['accountId']) || time() >= $_SESSION['expire']) {
             $this->restart();
             return FALSE;
         }
-        $this->update($_SESSION['accountId']);
+        $this->update();
         return TRUE;
     }
 
     /** Destroy the current session. */
     public function stop(): void
     {
-        unset($this->accountId);
         session_unset();
         session_destroy();
     }
@@ -88,6 +75,11 @@ class Session
     {
         $this->stop();
         $this->start();
+    }
+
+    public function setLoginTimeout(int $seconds): void
+    {
+        $this->loginTimeout = $seconds;
     }
 
 }
