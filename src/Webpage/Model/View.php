@@ -5,13 +5,8 @@ namespace NexusFrame\Webpage\Model;
 class View
 {
 
-    public function generate(string $path, string|array $content): string
+    public function generate(string $path, mixed $data): string
     {
-        // Store $content array values as their own variables for ease of use when templating.
-        if (gettype($content) === 'array') {
-            foreach ($content as $key => $value) $$key = $value;
-        }
-
         // Use the output buffer to parse code with variables to create the output.
         ob_start();
         require $path;
