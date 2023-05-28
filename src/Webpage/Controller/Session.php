@@ -87,4 +87,9 @@ class Session
         $this->loginTimeout = $seconds;
     }
 
+    public function getId(): int
+    {
+        return $_SESSION['accountId'];
+    }
+
 }
