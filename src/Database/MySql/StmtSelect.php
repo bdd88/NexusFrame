@@ -8,6 +8,7 @@ class StmtSelect extends AbstractStmt
     use TraitWhereClause;
 
     private string $columnString;
+    private string $columnFuncString;
     private string $joinString;
     private array $sorts;
     private string $orderString;
@@ -49,17 +50,19 @@ class StmtSelect extends AbstractStmt
         $columnString = '';
         $lastKey = array_key_last($columnNames);
         foreach ($columnNames as $key => $columnName) {
-            if (is_array($columnName)) {
-                $functionName = $this->verifyMySqlFunction(key($columnName));
-                $columnString .= $functionName . '(' . $this->encapColumnString(current($columnName)) . ')';
-            } else {
-                $columnString .= $this->encapColumnString($columnName);
-            }
-            if ($key !== $lastKey) {
-                $columnString .= ', ';
-            }
+            $columnString .= $this->encapColumnString($columnName);
+            if ($key !== $lastKey) $columnString .= ', ';
         }
         $this->columnString = $columnString;
+        return $this;
+    }
+
+    public function columnFunction(string $function, string $column, ?string $as = NULL): StmtSelect
+    {
+        $this->verifyMySqlFunction($function);
+        $columnFuncString = $function . '(' . $this->encapColumnString($column) . ')';
+        if ($as !== NULL) $columnFuncString .= ' AS ' . $this->encapColumnString($as);
+        $this->columnFuncString = $columnFuncString;
         return $this;
     }
 
@@ -125,11 +128,16 @@ class StmtSelect extends AbstractStmt
     public function getResults(): array
     {
         // Build the query string.
-        if (isset($this->columnString)) {
-            $queryString = 'SELECT ' . $this->columnString . ' FROM ' . $this->tableString;
+        if (isset($this->columnString) && isset($this->columnFuncString)) {
+            $queryString = 'SELECT ' . $this->columnString . ', ' . $this->columnFuncString;
+        } elseif (isset($this->columnString)) {
+            $queryString = 'SELECT ' . $this->columnString;
+        } elseif (isset($this->columnFuncString)) {
+            $queryString = 'SELECT ' . $this->columnFuncString;
         } else {
-            $queryString = 'SELECT * FROM ' . $this->tableString;
+            $queryString = 'SELECT *';
         }
+        $queryString .=  ' FROM ' . $this->tableString;
         if (isset($this->joinString)) {
             $queryString .= ' ' . $this->joinString;
         }
@@ -143,11 +151,8 @@ class StmtSelect extends AbstractStmt
             $queryString .= ' ' . $this->constructOrderString($this->sorts);
         }
 
-        // Run the query and return the results as an array of objects.
+        // Run the query and return the results.
         $results = $this->query($this->connection, $queryString)->store_result()->fetch_all(MYSQLI_ASSOC);
-        foreach ($results as &$result) {
-            $result = (object) $result;
-        }
         return $results;
     }
 }
