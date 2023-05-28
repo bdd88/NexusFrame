@@ -5,8 +5,11 @@ namespace NexusFrame\Webpage\Model;
 class View
 {
 
-    public function generate(string $path, mixed $data): string
+    public function generate(string $path, array $data): string
     {
+        // Store data array values as their own variables for ease of writing view templates.
+        foreach ($data as $key => $value) $$key = $value;
+
         // Use the output buffer to parse code with variables to create the output.
         ob_start();
         require $path;

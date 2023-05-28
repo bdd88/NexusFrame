@@ -53,11 +53,11 @@ class Main
         $pageObject = $this->serviceContainer->create($route->getClass());
         $pageMethod = $route->getMethod();
         $methodParameters = $route->getParameters();
-        $output = $pageObject->$pageMethod(...$methodParameters);
+        $dataReturned = $pageObject->$pageMethod(...$methodParameters);
 
         // Use output from the page class as arguments for views, if they are enabled.
-        if ($route->getPageViewPath() !== NULL) $output = $this->view->generate($route->getPageViewPath(), $output);
-        if ($route->getLayoutViewPath() !== NULL) $output = $this->view->generate($route->getLayoutViewPath(), $output);
+        $output = $this->view->generate($route->getPageViewPath(), $dataReturned);
+        if ($route->getLayoutViewPath() !== NULL) $output = $this->view->generate($route->getLayoutViewPath(), array('content' => $output));
         return $output;
     }
 }
