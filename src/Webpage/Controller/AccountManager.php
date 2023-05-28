@@ -96,9 +96,9 @@ class AccountManager
      * Retrieve the username associated with an account id.
      *
      * @param string $id
-     * @return integer|FALSE
+     * @return string|FALSE
      */
-    public function getUsername(string $id): int|FALSE
+    public function getUsername(string $id): string|FALSE
     {
         $accountsWithId = $this->mySql->preparedStatement()
             ->statement('SELECT `' . $this->usernameCol . '` FROM `' . $this->table . '` WHERE `' . $this->idCol . '` = ?')
@@ -106,7 +106,7 @@ class AccountManager
             ->getResults()
         ;
         if (sizeof($accountsWithId) !== 1) return FALSE;
-        return $accountsWithId[0][$this->idCol];
+        return $accountsWithId[0][$this->usernameCol];
     }
 
     /**
