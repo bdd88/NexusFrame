@@ -1,55 +1,30 @@
 <?php
 namespace NexusFrame\Webpage\Controller;
 
-use NexusFrame\Dependency\ServiceContainer;
 use NexusFrame\Webpage\Model\View;
+use NexusFrame\Webpage\Model\Route;
+use NexusFrame\Webpage\Model\RouteFactory;
+use NexusFrame\Dependency\ServiceContainer;
+use NexusFrame\Webpage\Model\AbstractPage;
 
 /** Handles the primary flow of data between the user, controllers, and models. */
 class Main
 {
-    private ServiceContainer $serviceContainer;
-    private Router $router;
-    private View $view;
-    private array $pages;
-
-    public function __construct(ServiceContainer $serviceContainer, Router $router, View $view)
+    public function __construct(
+        private ServiceContainer $serviceContainer,
+        private Router $router,
+        private RouteFactory $routeFactory,
+        private View $view
+        )
     {
-        $this->serviceContainer = $serviceContainer;
-        $this->router = $router;
-        $this->view = $view;
     }
 
-    /**
-     * Create a new page configuration.
-     *
-     * @param string $name Name of the page. Used for requests and redirection.
-     * @param string $class Class that generates data for the page.
-     * @param string $viewPath PHP/HTML template used to generate html output for the page.
-     * @param array|null $parameters Additional parameters to supply the page class when instantiating.
-     * @param boolean|null $login Required Require authentication to load the page.
-     * @param boolean|null $enabled Allow the page to be viewed.
-     * @return void
-     */
-    public function createPage(
-        string $name, string $class,
-        string $pageViewPath,
-        ?string $layoutViewPath = NULL,
-        ?array $parameters = NULL,
-        ?bool $loginRequired = NULL,
-        ?bool $enabled = NULL
-        ): void
+    /** Generates a route for a new page. */
+    public function createPage(string $name): Route
     {
-        $parameters ??= array();
-        $loginRequired ??= FALSE;
-        $enabled ??= TRUE;
-        $this->pages[$name] = array(
-            'class' => $class,
-            'pageView' => $pageViewPath,
-            'layoutView' => $layoutViewPath,
-            'parameters' => $parameters,
-            'login' => $loginRequired,
-            'enabled' => $enabled
-        );
+        $route = $this->routeFactory->create($name);
+        $this->router->create($route);
+        return $route;
     }
 
     // TODO: Add methods for enabling/disabling pages, as well as authentication and authorization methods. Possibly handle in a separate class.
@@ -62,16 +37,15 @@ class Main
      */
     public function exec(string $requestedPage): string|FALSE
     {
-        // Use router to redirect the page to output if necessary.
-        $pageName = $this->router->route($this->pages, $requestedPage);
-        if ($pageName === FALSE) return FALSE;
-
-        // Instantiate the page object, generate page data, inject page data into the view, and return the output HTML code.
-        $pageObject = $this->serviceContainer->create($this->pages[$pageName]['class']);
-        $pageData = $pageObject->generate($this->pages[$pageName]['parameters']);
-        $output = $this->view->generate($this->pages[$pageName]['pageView'], $pageData);
-        if (isset($this->pages[$pageName]['layoutView'])) {
-            $output = $this->view->generate($this->pages[$pageName]['layoutView'], $output);
+        // Retrieve the routing information in order to generate the page.
+        $route = $this->router->get($requestedPage);
+        if ($route === FALSE) return FALSE;
+        /** @var AbstractPage $pageObject */
+        $pageObject = $this->serviceContainer->create($route->class);
+        $pageData = $pageObject->generate($route->parameters);
+        $output = $this->view->generate($route->pageViewPath, $pageData);
+        if (isset($route->layoutViewPath)) {
+            $output = $this->view->generate($route->layoutViewPath, $output);
         }
         return $output;
     }
