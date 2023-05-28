@@ -52,7 +52,12 @@ class Session
         $this->accountManager->setSeen($_SESSION['accountId'], $currentTime, $_SERVER['REMOTE_ADDR']);
     }
 
-    /** Check the current session, and update it based on session expiration. */
+    /**
+     * Check the current session to see if a user is logged in, and has not exceeded the login timeout.
+     * Refreshes the login timeout and calls update() to refresh the last seen data.
+     *
+     * @return boolean TRUE if a user is logged in and the session is not expired, FALSE otherwise.
+     */
     public function status(): bool
     {
         if (!isset($_SESSION['accountId']) || time() >= $_SESSION['expire']) {
