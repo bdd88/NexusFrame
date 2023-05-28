@@ -6,15 +6,17 @@ class Route
 {
     private string $name;
     private string $class;
-    private string $pageViewPath;
+    private string $method;
+    private ?string $pageViewPath;
     private ?string $layoutViewPath;
-    private array $parameters;
+    private ?array $parameters;
     private bool $loginRequired;
     private bool $enabled;
 
     public function __construct(string $name)
     {
         $this->name = $name;
+        $this->pageViewPath = NULL;
         $this->layoutViewPath = NULL;
         $this->parameters = array();
         $this->loginRequired = FALSE;
@@ -24,6 +26,12 @@ class Route
     public function setClass(string $class): self
     {
         $this->class = $class;
+        return $this;
+    }
+
+    public function setMethod(string $method): self
+    {
+        $this->method = $method;
         return $this;
     }
 
@@ -65,6 +73,11 @@ class Route
     public function getClass(): string
     {
         return $this->class;
+    }
+
+    public function getMethod(): string
+    {
+        return $this->method;
     }
 
     public function getPageViewPath(): string

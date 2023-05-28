@@ -48,13 +48,16 @@ class Main
         // Retrieve the routing information in order to generate the page.
         $route = $this->router->get($requestedPage);
         if ($route === NULL) return FALSE;
-        /** @var AbstractPage $pageObject */
+
+        // Create the page object, call the appropriate method with supplied parameters, and store the returned data.
         $pageObject = $this->serviceContainer->create($route->getClass());
-        $pageData = $pageObject->generate($route->getParameters());
-        $output = $this->view->generate($route->getPageViewPath(), $pageData);
-        if ($route->getLayoutViewPath() !== NULL) {
-            $output = $this->view->generate($route->getLayoutViewPath(), $output);
-        }
+        $pageMethod = $route->getMethod();
+        $methodParameters = $route->getParameters();
+        $output = $pageObject->$pageMethod(...$methodParameters);
+
+        // Use output from the page class as arguments for views, if they are enabled.
+        if ($route->getPageViewPath() !== NULL) $output = $this->view->generate($route->getPageViewPath(), $output);
+        if ($route->getLayoutViewPath() !== NULL) $output = $this->view->generate($route->getLayoutViewPath(), $output);
         return $output;
     }
 }
