@@ -16,7 +16,7 @@ class Logger
      * @param string|null $enabled (optional) Whether the log file should be writable. Can be modified with enableLog() and disableLog() methods.
      * @return void
      */
-    public function createLog(string $name, ?string $path = NULL, ?string $enabled = NULL): void
+    public function setup(string $name, ?string $path = NULL, ?string $enabled = NULL): void
     {
         if (isset($path)) {
             // Make sure path is stored as an absolute path.
@@ -69,7 +69,7 @@ class Logger
     public function log(string $logName, string $contents): int
     {
         $configured = isset($this->logSettings[$logName]);
-        if ($configured === FALSE) throw new Exception('Settings have not been configured for log: ' . $logName);
+        if ($configured === FALSE) throw new Exception('Attempting to write to a log that has not be configured: ' . $logName);
 
         if ($this->logSettings[$logName]['enabled'] === FALSE) return 0;
 
