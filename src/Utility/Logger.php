@@ -1,8 +1,6 @@
 <?php
 namespace NexusFrame\Utility;
 
-use Exception;
-
 /** Creates log files and log entries. */
 class Logger
 {
@@ -30,7 +28,7 @@ class Logger
         }
 
         $enabled ??= TRUE;
-        if (isset($this->logSettings[$name])) throw new Exception('Settings for log ' . $name . ' already exist.');
+        if (isset($this->logSettings[$name])) trigger_error('Settings for log ' . $name . ' already exist.', E_USER_NOTICE);
         $this->logSettings[$name] = array();
         $this->logSettings[$name]['path'] = $path;
         $this->logSettings[$name]['enabled'] = $enabled;
@@ -69,18 +67,18 @@ class Logger
     public function log(string $logName, string $contents): int
     {
         $configured = isset($this->logSettings[$logName]);
-        if ($configured === FALSE) throw new Exception('Attempting to write to a log that has not be configured: ' . $logName);
+        if ($configured === FALSE) trigger_error('Attempting to write to a log that has not be configured: ' . $logName, E_USER_NOTICE);
 
         if ($this->logSettings[$logName]['enabled'] === FALSE) return 0;
 
         $stream = fopen($this->logSettings[$logName]['path'], 'a');
-        if ($stream === FALSE) throw new Exception('Unable to open or create log file at path: ' . $this->logSettings[$logName]['path']);
+        if ($stream === FALSE) trigger_error('Unable to open or create log file at path: ' . $this->logSettings[$logName]['path'], E_USER_NOTICE);
 
         $write = fwrite($stream, date("Y/m/d H:i:s") . ' - ' . $contents . PHP_EOL);
-        if ($write === FALSE) throw new Exception('Unable to write to log file at path: ' . $this->logSettings[$logName]['path']);
+        if ($write === FALSE) trigger_error('Unable to write to log file at path: ' . $this->logSettings[$logName]['path'], E_USER_NOTICE);
 
         $close = fclose($stream);
-        if ($close === FALSE) throw new Exception('Unable to close file pointer to log file at path: ' . $this->logSettings[$logName]['path']);
+        if ($close === FALSE) trigger_error('Unable to close file pointer to log file at path: ' . $this->logSettings[$logName]['path'], E_USER_NOTICE);
 
         return $write;
     }
