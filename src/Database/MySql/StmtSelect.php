@@ -123,7 +123,7 @@ class StmtSelect extends AbstractStmt
     /**
      * Execute the SELECT query.
      *
-     * @return object[] An array of objects representing rows.
+     * @return array An array of arrays representing rows.
      */
     public function getResults(): array
     {
