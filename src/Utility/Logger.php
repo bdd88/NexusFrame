@@ -67,18 +67,30 @@ class Logger
     public function log(string $logName, string $contents): int
     {
         $configured = isset($this->logSettings[$logName]);
-        if ($configured === FALSE) trigger_error('Attempting to write to a log that has not be configured: ' . $logName, E_USER_NOTICE);
+        if ($configured === FALSE) {
+            trigger_error('Attempting to write to a log that has not be configured: ' . $logName, E_USER_NOTICE);
+            return 0;
+        }
 
         if ($this->logSettings[$logName]['enabled'] === FALSE) return 0;
 
         $stream = fopen($this->logSettings[$logName]['path'], 'a');
-        if ($stream === FALSE) trigger_error('Unable to open or create log file at path: ' . $this->logSettings[$logName]['path'], E_USER_NOTICE);
+        if ($stream === FALSE) {
+            trigger_error('Unable to open or create log file at path: ' . $this->logSettings[$logName]['path'], E_USER_NOTICE);
+            return 0;
+        }
 
         $write = fwrite($stream, date("Y/m/d H:i:s") . ' - ' . $contents . PHP_EOL);
-        if ($write === FALSE) trigger_error('Unable to write to log file at path: ' . $this->logSettings[$logName]['path'], E_USER_NOTICE);
+        if ($write === FALSE) {
+            trigger_error('Unable to write to log file at path: ' . $this->logSettings[$logName]['path'], E_USER_NOTICE);
+            return 0;
+        }
 
         $close = fclose($stream);
-        if ($close === FALSE) trigger_error('Unable to close file pointer to log file at path: ' . $this->logSettings[$logName]['path'], E_USER_NOTICE);
+        if ($close === FALSE) {
+            trigger_error('Unable to close file pointer to log file at path: ' . $this->logSettings[$logName]['path'], E_USER_NOTICE);
+            return 0;
+        }
 
         return $write;
     }
