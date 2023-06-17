@@ -6,7 +6,6 @@ class Curl
 {
     public function __construct(private Logger $logger)
     {
-        $this->logger->createLog('curl');
     }
 
     /** Query a url using http GET or POST and return am array containing the http response code and API response. */
