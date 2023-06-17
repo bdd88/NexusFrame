@@ -30,6 +30,7 @@ class Logger
         }
 
         $enabled ??= TRUE;
+        if (isset($this->logSettings[$name])) throw new Exception('Settings for log ' . $name . ' already exist.');
         $this->logSettings[$name] = array();
         $this->logSettings[$name]['path'] = $path;
         $this->logSettings[$name]['enabled'] = $enabled;
